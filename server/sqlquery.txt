@@ -1,0 +1,21 @@
+INSERT INTO public.usuarios(email, password) VALUES
+('user1@example.com', 'password1'),
+('user2@example.com', 'password2'),
+('user3@example.com', 'password3');
+
+INSERT INTO public.books(nombre, descripcion, usuario_id) VALUES
+('The Great Gatsby', 'Set in the roaring 1920s, this classic novel by F. Scott Fitzgerald follows the enigmatic Jay Gatsby and his pursuit of the American Dream amidst love, wealth, and betrayal.', 1),
+('To Kill a Mockingbird', 'Harper Lee''s masterpiece explores themes of racial injustice and moral growth in the fictional town of Maycomb, Alabama, through the eyes of young Scout Finch.', 1),
+('1984', 'George Orwell''s dystopian novel depicts a totalitarian society ruled by Big Brother, where individualism is suppressed, and surveillance is omnipresent.', 1),
+('The Catcher in the Rye', 'J.D. Salinger''s coming-of-age novel follows the rebellious Holden Caulfield as he navigates the complexities of adolescence and searches for authenticity in a phony world.', 2),
+('Pride and Prejudice', 'Jane Austen''s classic romance novel explores the societal norms and expectations of 19th-century England as Elizabeth Bennet navigates love, marriage, and class prejudice.', 2),
+('The Hobbit', 'J.R.R. Tolkien''s fantasy adventure follows Bilbo Baggins, a hobbit who embarks on a quest to reclaim the dwarves'' lost kingdom of Erebor from the fearsome dragon Smaug.', 2),
+('The Da Vinci Code', 'Dan Brown''s thriller unravels a conspiracy surrounding the Holy Grail as symbologist Robert Langdon and cryptologist Sophie Neveu race against time to solve cryptic puzzles.', 3),
+('The Lord of the Rings', 'Tolkien''s epic fantasy trilogy follows Frodo Baggins and his companions as they journey across Middle-earth to destroy the One Ring and defeat the dark lord Sauron.', 3),
+('Gone with the Wind', 'Margaret Mitchell''s sweeping saga set during the American Civil War follows the headstrong Scarlett O''Hara as she navigates love, loss, and survival in the Old South.', 3),
+('The Hunger Games', 'Suzanne Collins'' dystopian series follows Katniss Everdeen as she volunteers to compete in the brutal Hunger Games, a televised fight to the death, to protect her sister and challenge the oppressive Capitol.', 1),
+('Harry Potter and the Philosopher''s Stone', 'J.K. Rowling''s magical tale introduces young wizard Harry Potter as he discovers his true identity and battles the dark wizard Voldemort at Hogwarts School of Witchcraft and Wizardry.', 2),
+('Jane Eyre', 'Charlotte Brontë''s classic novel follows the orphaned Jane Eyre as she grows up, faces adversity, and falls in love with the brooding Mr. Rochester amidst secrets and mysteries at Thornfield Hall.', 3),
+('The Alchemist', 'Paulo Coelho''s philosophical novel tells the story of Santiago, an Andalusian shepherd boy, as he embarks on a journey to fulfill his dreams and discover the true meaning of life.', 1),
+('The Road', 'Cormac McCarthy''s post-apocalyptic novel follows a father and son as they journey through a desolate landscape, struggling to survive and maintain their humanity in a world devoid of hope.', 2),
+('The Chronicles of Narnia', 'C.S. Lewis''s beloved fantasy series transports readers to the magical land of Narnia, where children embark on epic adventures, encounter mythical creatures, and confront the forces of evil.', 3);
