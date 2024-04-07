@@ -1,1 +1,3 @@
+ctrl + p  y poner ">" Python y buscar python interpreter para elegir entorno virtual sino crearlo
+
 run: uvicorn main:app
