@@ -1,32 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-const initialBookData = { nombre: '', descripcion: '' };
+const initialBookData = { nombre: '', descripcion: '', usuario_id: '' };
 
 const Books = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(false);
   const [books, setBooks] = useState([
-  { id: 1, nombre: 'Book 1', descripcion: 'Description 1' },
-  { id: 2, nombre: 'Book 2', descripcion: 'Description 2' },
-  { id: 3, nombre: 'Book 3', descripcion: 'Description 3' },
-  { id: 4, nombre: 'Book 1', descripcion: 'Description 1' },
-  { id: 5, nombre: 'Book 2', descripcion: 'Description 2' },
-  { id: 6, nombre: 'Book 3', descripcion: 'Description 3' },
-  { id: 7, nombre: 'Book 1', descripcion: 'Description 1' },
-  { id: 8, nombre: 'Book 2', descripcion: 'Description 2' },
-  { id: 9, nombre: 'Book 3', descripcion: 'Description 3' },
-  { id: 10, nombre: 'Book 1', descripcion: 'Description 1' },
-  { id: 11, nombre: 'Book 2', descripcion: 'Description 2' },
-  { id: 12, nombre: 'Book 3', descripcion: 'Description 3' },
-  { id: 13, nombre: 'Book 1', descripcion: 'Description 1' },
-  { id: 14, nombre: 'Book 2', descripcion: 'Description 2' },
-  { id: 15, nombre: 'Book 3', descripcion: 'Description 3' },
-  // Add more books here
-]);
+    
+  ]);
 const [editBookId, setEditBookId] = useState(null);
 const [newBookData, setNewBookData] = useState(initialBookData);
 const [bookToDeleteId, setBookToDeleteId] = useState(null);
+
+const url = "http://localhost:8000/books"
+
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(url);
+      setBooks(response.data); // Update the books state with data from the server
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  fetchData();
+
+  // Cleanup function not needed since there are no dependencies
+}, []);
+
 
 const booksPerPage = 10;
 const totalPages = Math.ceil(books.length / booksPerPage);
@@ -41,33 +45,36 @@ const handleInputChange = event => {
   setNewBookData({ ...newBookData, [name]: value });
 };
 
-const addBook = () => {
-  if (newBookData.nombre.trim() !== '' && newBookData.descripcion.trim() !== '') {
-    const newBook = {
-      id: books.length + 1,
-      nombre: newBookData.nombre,
-      descripcion: newBookData.descripcion
-    };
-    setBooks([...books, newBook]);
+const addBook = async () => {
+  try {
+    const response = await axios.post(url, newBookData);
+    setBooks([...books, response.data]);
     setNewBookData(initialBookData);
     setShowModal(false);
+  } catch (error) {
+    console.error('Error adding book:', error);
   }
 };
 
 const editBook = id => {
   setEditBookId(id);
   const bookToEdit = books.find(book => book.id === id);
-  setNewBookData({ nombre: bookToEdit.nombre, descripcion: bookToEdit.descripcion });
+  setNewBookData({ nombre: bookToEdit.nombre, descripcion: bookToEdit.descripcion, usuario_id: 4 });
   setShowModal(true);
 };
 
-const updateBook = () => {
-  const updatedBooks = books.map(book =>
-    book.id === editBookId ? { ...book, nombre: newBookData.nombre, descripcion: newBookData.descripcion } : book
-  );
-  setBooks(updatedBooks);
-  setNewBookData(initialBookData);
-  setShowModal(false);
+const updateBook = async () => {
+  try {
+    await axios.put(`${url}/${editBookId}`, newBookData);
+    const updatedBooks = books.map(book =>
+      book.id === editBookId ? { ...book, nombre: newBookData.nombre, descripcion: newBookData.descripcion, usuario_id: 4 } : book
+    );
+    setBooks(updatedBooks);
+    setNewBookData(initialBookData);
+    setShowModal(false);
+  } catch (error) {
+    console.error('Error updating book:', error);
+  }
 };
 
 const confirmDelete = id => {
@@ -75,11 +82,16 @@ const confirmDelete = id => {
   setConfirmDeleteModal(true);
 };
 
-const deleteBook = () => {
-  const updatedBooks = books.filter(book => book.id !== bookToDeleteId);
-  setBooks(updatedBooks);
-  setBookToDeleteId(null);
-  setConfirmDeleteModal(false);
+const deleteBook = async () => {
+  try {
+    await axios.delete(`${url}/${bookToDeleteId}`);
+    const updatedBooks = books.filter(book => book.id !== bookToDeleteId);
+    setBooks(updatedBooks);
+    setBookToDeleteId(null);
+    setConfirmDeleteModal(false);
+  } catch (error) {
+    console.error('Error deleting book:', error);
+  }
 };
 
 return (
