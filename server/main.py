@@ -1,11 +1,15 @@
-from fastapi import FastAPI, Depends, HTTPException
-from fastapi.security import OAuth2AuthorizationCodeBearer, OAuth2PasswordRequestForm
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from passlib.context import CryptContext
 from pydantic import BaseModel
 from typing import List
+import jwt
+from datetime import timedelta
+
 
 # Create FastAPI app
 app = FastAPI()
@@ -57,6 +61,31 @@ Base.metadata.create_all(engine)
 # Create a Session class to use throughout the app
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+# Password hashing
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# Dependency to get the current session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return token
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+def authenticate_user(db, username: str, password: str):
+    user = db.query(User).filter(User.email == username).first()
+    if not user or not verify_password(password, user.password):
+        return False
+    return user
+
 # Pydantic model for user creation request body
 class UserCreate(BaseModel):
     email: str
@@ -85,8 +114,36 @@ class BookResponse(BaseModel):
     descripcion: str
     usuario_id: int
 
+SECRET_KEY = "your-secret-key"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
 # Define tags for users endpoints
 tags = ["Users"]
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+@app.post("/token")
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    db = next(get_db())
+    user = authenticate_user(db, form_data.username, form_data.password)
+    print(form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.email}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@app.get("/protected-route")
+async def protected_route(token: str = Depends(oauth2_scheme)):
+    return {"message": "You are accessing a protected route"}
+
 
 # Route to create a new user
 @app.post("/users/", response_model=UserResponse, tags=tags)
@@ -219,9 +276,3 @@ def delete_book(book_id: int):
         raise HTTPException(status_code=500, detail="Failed to delete book")
     finally:
         db.close()
-
-oauth2_scheme = OAuth2AuthorizationCodeBearer("/token")        
-
-@app.get("/users/me")
-def user(token: str = Depends(oauth2_scheme)):
-    return "soy usuario"
