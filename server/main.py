@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Depends, HTTPException
+from fastapi.security import OAuth2AuthorizationCodeBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
@@ -35,7 +36,7 @@ Base = declarative_base()
 
 # Define User model
 class User(Base):
-    __tablename__ = "users"
+    __tablename__ = "usuarios"
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
@@ -48,7 +49,7 @@ class Book(Base):
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String)
     descripcion = Column(String)
-    usuario_id = Column(Integer, ForeignKey('users.id'))
+    usuario_id = Column(Integer, ForeignKey('usuarios.id'))
 
 # Create the database tables
 Base.metadata.create_all(engine)
@@ -219,4 +220,8 @@ def delete_book(book_id: int):
     finally:
         db.close()
 
-        
+oauth2_scheme = OAuth2AuthorizationCodeBearer("/token")        
+
+@app.get("/users/me")
+def user(token: str = Depends(oauth2_scheme)):
+    return "soy usuario"
