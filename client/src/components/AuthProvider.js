@@ -14,9 +14,9 @@ const AuthProvider = ({ children }) => {
       const response = await fetch("http://localhost:8000/token", {
         method: "POST",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded", // change content type
+          "Content-Type": "application/x-www-form-urlencoded", 
         },
-        body: new URLSearchParams(data).toString(), // convert to form-urlencoded format
+        body: new URLSearchParams(data).toString(),
       });
       const res = await response.json();
       console.log(res)

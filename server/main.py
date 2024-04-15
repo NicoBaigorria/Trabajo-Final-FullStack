@@ -33,13 +33,10 @@ db = "BooksStore"
 
 SQLALCHEMY_DATABASE_URL = f"postgresql://{user}:{password}@{host}:{port}/{db}"
 
-# Create SQLAlchemy engine
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
-# Create a base class for declarative class definitions
 Base = declarative_base()
 
-# Define User model
 class User(Base):
     __tablename__ = "usuarios"
 
@@ -47,7 +44,6 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     password = Column(String)
 
-# Define Book model
 class Book(Base):
     __tablename__ = "books"
 
@@ -56,16 +52,14 @@ class Book(Base):
     descripcion = Column(String)
     usuario_id = Column(Integer, ForeignKey('usuarios.id'))
 
-# Create the database tables
+
 Base.metadata.create_all(engine)
 
-# Create a Session class to use throughout the app
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Dependency to get the current session
+
 def get_db():
     db = SessionLocal()
     try:
@@ -73,27 +67,25 @@ def get_db():
     finally:
         db.close()
 
-# Pydantic model for user creation request body
 class UserCreate(BaseModel):
     email: str
     password: str
 
-# Pydantic model for user update request body
+
 class UserUpdate(BaseModel):
     email: str
     password: str
 
-# Pydantic model for user response
 class UserResponse(BaseModel):
     id: int
     email: str
 
-# Pydantic model for book creation request body
+
 class BookCreate(BaseModel):
     nombre: str
     descripcion: str
 
-# Pydantic model for book response
+
 class BookResponse(BaseModel):
     id: int
     nombre: str
@@ -130,7 +122,6 @@ def authenticate_user(db, username: str, password: str):
     return user
 
 
-# Define tags for users endpoints
 tags = ["Users"]
 
 @app.post("/token")
@@ -151,7 +142,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         )
     return {"access_token": access_token, "token_type": "bearer"}
     
-    # Assuming you have a function to get the current user's email from the JWT token
+ 
 def get_current_user_id(token: str = Depends(oauth2_scheme)) -> str:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -177,7 +168,7 @@ def get_current_user_id(token: str = Depends(oauth2_scheme)) -> str:
         )
 
 
-# Route to create a new user
+
 @app.post("/users/", response_model=UserResponse, tags=tags)
 def create_user(user: UserCreate):
     db = SessionLocal()
@@ -193,7 +184,7 @@ def create_user(user: UserCreate):
     finally:
         db.close()
 
-# Route to retrieve all users
+
 @app.get("/users/", response_model=List[UserResponse], tags=tags)
 def get_users():
     db = SessionLocal()
@@ -205,7 +196,7 @@ def get_users():
     finally:
         db.close()
 
-# Route to update a user
+
 @app.put("/users/{user_id}/", response_model=UserResponse, tags=tags)
 def update_user(user_id: int, user: UserUpdate):
     db = SessionLocal()
@@ -224,7 +215,7 @@ def update_user(user_id: int, user: UserUpdate):
     finally:
         db.close()
 
-# Route to delete a user
+
 @app.delete("/users/{user_id}/", response_model=UserResponse, tags=tags)
 def delete_user(user_id: int):
     db = SessionLocal()
@@ -241,10 +232,9 @@ def delete_user(user_id: int):
     finally:
         db.close()
 
-# Define tags for users endpoints
+
 tags = ["Books"]
 
-# Route to save a new book
 @app.post("/books/", response_model=BookResponse, tags=tags)
 def save_book(book: BookCreate, user_id: str = Depends(get_current_user_id), db: Session = Depends(get_db)):
     db = SessionLocal()
@@ -260,7 +250,6 @@ def save_book(book: BookCreate, user_id: str = Depends(get_current_user_id), db:
     finally:
         db.close()
 
-# Route to retrieve all books
 @app.get("/books/", response_model=List[BookResponse], tags=tags)
 def get_books(user_id: str = Depends(get_current_user_id), db: Session = Depends(get_db)):
     db = SessionLocal()
@@ -272,7 +261,6 @@ def get_books(user_id: str = Depends(get_current_user_id), db: Session = Depends
     finally:
         db.close()
 
-# Route to update a book
 @app.put("/books/{book_id}/", response_model=BookResponse, tags=tags)
 def update_book(book_id: int, book: BookCreate, user_id: str = Depends(get_current_user_id), db: Session = Depends(get_db)):
     db = SessionLocal()
@@ -293,7 +281,6 @@ def update_book(book_id: int, book: BookCreate, user_id: str = Depends(get_curre
     finally:
         db.close()
 
-# Route to delete a book
 @app.delete("/books/{book_id}/", response_model=BookResponse, tags=tags)
 def delete_book(book_id: int, token: str = Depends(oauth2_scheme)):
     db = SessionLocal()
