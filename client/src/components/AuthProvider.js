@@ -9,7 +9,7 @@ const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const loginAction = async (data) => {
     try {
-      const response = await fetch("your-api-endpoint/auth/login", {
+      const response = await fetch("http://localhost:8000/token", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
