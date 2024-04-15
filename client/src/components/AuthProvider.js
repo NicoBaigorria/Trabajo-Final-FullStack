@@ -5,22 +5,26 @@ const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem("site") || "");
+  const [token, setToken] = useState(localStorage.getItem("token") || "");
   const navigate = useNavigate();
   const loginAction = async (data) => {
+
+    console.log("data", data)
     try {
       const response = await fetch("http://localhost:8000/token", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded", // change content type
         },
-        body: JSON.stringify(data),
+        body: new URLSearchParams(data).toString(), // convert to form-urlencoded format
       });
       const res = await response.json();
-      if (res.data) {
-        setUser(res.data.user);
-        setToken(res.token);
-        localStorage.setItem("site", res.token);
+      console.log(res)
+      if (res.access_token) {
+        console.log("dataaaaa", res.access_token)
+       // setUser(res.data.user);
+        setToken(res.access_token);
+        localStorage.setItem("token", res.access_token);
         navigate("/home");
         return;
       }
@@ -33,7 +37,7 @@ const AuthProvider = ({ children }) => {
   const logOut = () => {
     setUser(null);
     setToken("");
-    localStorage.removeItem("site");
+    localStorage.removeItem("token");
     navigate("/login");
   };
 

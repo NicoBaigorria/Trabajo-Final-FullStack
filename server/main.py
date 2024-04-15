@@ -136,7 +136,6 @@ tags = ["Users"]
 @app.post("/token")
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     db = next(get_db())
-    print(form_data)
     print("data entry", form_data.username, form_data.password)
     user = authenticate_user(db, form_data.username, form_data.password)
     print(form_data.username, form_data.password, user)
