@@ -26,7 +26,7 @@ app.add_middleware(
 
 # PostgreSQL database URL
 user = "postgres"
-password = "Naics111194"
+password = ""
 host = "localhost"
 port = "5432"
 db = "BooksStore"
